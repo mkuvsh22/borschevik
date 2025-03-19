@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карта Пятерочек</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
+    <style>
+        #map { 
+            height: 100vh; 
+        }
+        /* Применяем grayscale только к базовому слою карты */
+        .leaflet-tile-pane {
+            filter: grayscale(100%) opacity(30%) invert(120%);
+        }
+        /* Убедимся, что наши маркеры будут поверх и без grayscale */
+        .leaflet-marker-pane {
+            filter: none;
+        }
+        /* Стили для кастомных иконок */
+        .custom-icon {
+            background: transparent;
+            border: none;
+        }
+
+        /* Стили для меню */
+        .menu {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            display: flex;
+            z-index: 1000;
+            text-align: right;
+        }
+
+        .menu a {
+            color: red; /* Красный цвет текста */
+            text-decoration: none;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            margin-left: 20px;
+            transition: opacity 0.3s;
+            font-family: 'Dela Gothic One', cursive;
+        }
+
+        .menu a:hover {
+            opacity: 0.8;
+        }
+
+        /* Стили для кнопки звука */
+        .mute-button {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
+        }
+
+        .mute-button:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .sound-icon {
+            width: 24px;
+            height: 24px;
+            fill: #AAAAAA;
+        }
+
+        /* Скрываем логотип Leaflet */
+        .leaflet-control-attribution {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <!-- Меню -->
+    <div class="menu">
+        <a href="index7.html">Интро</a>
+        <a href="method.html">О проекте</a>
+        <a href="map.html">Карта</a>
+    </div>
+
+    <!-- Кнопка звука -->
+    <button class="mute-button" id="mute-button" aria-label="Включить звук">
+        <svg class="sound-icon" id="sound-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.8 4.9c0-.5-.4-1-.8-1-.2 0-.4.1-.6.2L4.8 8H1c-.6 0-1 .4-1 1v6c0 .6.4 1 1 1h3.8l4.6 3.9c.2.1.4.2.6.2.4 0 .8-.5.8-1V4.9z"/>
+            <path id="mute-path" d="M23 12c0-3.2-1.9-6-4.5-7.2" stroke="#AAAAAA" stroke-width="2" stroke-linecap="round"/>
+            <path id="sound-path-1" d="M18.5 4.8c2.6 1.2 4.5 4 4.5 7.2 0 3.2-1.9 6-4.5 7.2" stroke="#AAAAAA" stroke-width="2" stroke-linecap="round"/>
+            <path id="sound-path-2" d="M15 8.5c1.3.6 2.3 2 2.3 3.5s-1 2.9-2.3 3.5" stroke="#AAAAAA" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+    </button>
+
+    <script>
+        var map = L.map('map').setView([61.78, 34.35], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '' // Убираем атрибуцию
+        }).addTo(map);
+
+        var locations = [
+            { coords: [61.810882, 34.324614], before: ['#8e2420', '#96999e', '#1e2629', '#c7cbd6'], after: ['#ce0002', '#029e00', '#9d9ea3', '#1a2124'] },
+            { coords: [61.794324, 34.368282], before: ['#5a984d', '#332019', '#b060a9', '#aaac93'], after: ['#610216', '#046b04', '#263459', '#6d82b0'] },
+            { coords: [61.799983, 34.326488], before: ['#06368c', '#4e7142', '#8b99aa', '#9e9e95'], after: ['#fc0601', '#43c45d', '#b3b1a2', '#dee3d9'] },
+            { coords: [61.776585, 34.367059], before: ['#06489e', '#ab232f', '#6e85a5', '#b36d86'], after: ['#840c1b', '#37712b', '#ffffff', '#6c7077'] },
+            { coords: [61.779837, 34.374784], before: ['#667a18', '#5b6c80', '#686928', '#9d574c'], after: ['#840c1b', '#37712b', '#ffffff', '#6c7078'] },
+            { coords: [61.783088, 34.394696], before: ['#ab453a', '#2c61c5', '#848d9d', '#910f1f'], after: ['#e8110b', '#08d250', '#ffffff', '#b8b8b6'] },
+            { coords: [62.208015, 34.256947], before: ['#8f640b', '#641019', '#76422c', '#5d6e82'], after: ['#b73e45', '#33863a', '#fcfffe', '#848987'] },
+            { coords: [62.205410, 34.255252], before: ['#a83e1e', '#babec0', '#9b948f', '#9b948f'], after: ['#b0323a', '#1b5400', '#dbcfd8', '#dddddf'] },
+            { coords: [62.208592, 34.262641], before: ['#4a3054', '#928e83', '#962b33', '#848f95'], after: ['#e03342', '#368946', '#a5b0b9', '#a5b0b9'] },
+            { coords: [67.662229, 33.716523], before: ['#1b2959', '#615c58', '#845a4f', '#989495'], after: ['#e52322', '#108111', '#a5b0b10', '#738285'] },
+            { coords: [67.656154, 33.704336], before: ['#5d372a', '#13275b', '#88878f', '#93867d'], after: ['#9d2a2d', '#01880d', '#a5b0b11', '#45545b'] },
+            { coords: [67.618760, 33.687212], before: ['#82273d', '#998a4f', '#444851', '#05486c'], after: ['#fa0001', '#27b91e', '#ffffff', '#919fac'] },
+            { coords: [67.556660, 33.434237], before: ['#ead61e', '#28736e', '#052f99', '#fb7e0b'], after: ['#f5d573', '#2c635e', '#acb0b3', '#c24140'] },
+            { coords: [61.706771, 30.703666], before: ['#b59475', '#f8f4eb', '#94795e', '#f77f53'], after: ['#ff0129', '#08d003', '#f6f8f2', '#9c9fa8'] },
+            { coords: [61.573187, 31.471819], before: ['#083c30', '#adad7b', '#886b5d', '#8e6b83'], after: ['#e52322', '#0d5414', '#828186', '#ced4d6'] },
+            { coords: [61.566361, 31.478865], before: ['#545750', '#6b7577', '#201c19', '#826f3d'], after: ['#e52322', '#08d003', '#5b686e', '#7789aa'] },
+            { coords: [60.978076, 32.961996], before: ['#c1c5b7', '#6a3e4f', '#86a1b6', '#301621'], after: ['#e52322', '#08d003', '#35405c', '#606c96'] },
+            { coords: [60.726795, 33.569717], before: ['#9f6571', '#999771', '#3a2d25', '#829090'], after: ['#747b8e', '#e52322', '#08d003', '#747b8e'] },
+            { coords: [60.733500, 33.555727], before: ['#e9e9f1', '#5698d5', '#aba8af', '#bdaaa3'], after: ['#e52322', '#08d003', '#c5ccdf', '#59585e'] },
+            { coords: [60.736417, 33.546285], before: ['#ebb400', '#f50418', '#1955cc', '#6281b2'], after: ['#d43c35', '#6281b2', '#293138', '#e2d9e5'] },
+            { coords: [60.732701, 33.537399], before: ['#909088', '#1b465e', '#502a26', '#746e63'], after: ['#e52322', '#08d003', '#455575', '#496486'] },
+            { coords: [60.915219, 34.156035], before: ['#e1dac0', '#877336', '#8a130d', '#87b8cb'], after: ['#e52322', '#08d003', '#e1dac0', '#667ba1'] },
+            { coords: [60.905878, 34.172043], before: ['#cec7b0', '#21443d', '#15206d', '#90a2d0'], after: ['#f7ea3c', '#ff2f17', '#48c700', '#f5f2eb'] },
+            { coords: [59.944722, 34.200491], before: ['#836e56', '#797b6d', '#817660', '#917768'], after: ['#ffe15b', '#ffffff', '#5bc23c', '#30302e'] },
+            { coords: [59.512168, 34.202050], before: ['#6a706e', '#195434', '#36465c', '#704135'], after: ['#e52322', '#08d003', '#3a4c64', '#3a4c64'] },
+            { coords: [61.760838, 34.427789], before: ['#5b595c', '#4f555d', '#3a434f', '#868789'], after: ['#fc2300', '#0ab233', '#afb0b5', '#f3f3f6'] },
+            { coords: [61.766659, 34.427848], before: ['#afa59c', '#a44546', '#967a6f', '#e4dad1'], after: ['#e1030c', '#08d003', '#726d71', '#916c64'] },
+            { coords: [61.762330, 34.369583], before: ['#13726c', '#033073', '#4e7034', '#9e1620'], after: ['#e52322', '#67a12e', '#939c9e', '#c9cfd6'] },
+            { coords: [61.765897, 34.368926], before: ['#958b81', '#39383d', '#5b5932', '#294b1e'], after: ['#005911', '#770308', '#525a5c', '#7e959a'] },
+            { coords: [61.769025, 34.308967], before: ['#503c2a', '#012244', '#787e79', '#646361'], after: ['#06af00', '#e80012', '#9c3a1e', '#e3e0df'] }
+        ];
+        
+        // Создаем массив для хранения маркеров
+        var markers = [];
+
+        locations.forEach(loc => {
+            // Создаем градиенты, явно указывая позиции цветов
+            let gradient = `radial-gradient(circle, ${loc.before[0]} 0%, ${loc.before[1]} 33%, ${loc.before[2]} 66%, ${loc.before[3]} 100%)`;
+            let afterGradient = `radial-gradient(circle, ${loc.after[0]} 0%, ${loc.after[1]} 33%, ${loc.after[2]} 66%, ${loc.after[3]} 100%)`;
+            
+            // Создаем иконку с div-элементом
+            let divIcon = L.divIcon({
+                className: 'custom-icon',
+                html: `<div style="width: 40px; height: 40px; border-radius: 50%; background: ${gradient}; opacity: 0.8;"></div>`,
+                iconSize: [40, 40],  // Явно указываем размер иконки
+                iconAnchor: [20, 20] // Центрируем иконку
+            });
+            
+            let marker = L.marker(loc.coords, { icon: divIcon }).addTo(map);
+            markers.push(marker);
+            
+            // Обработчик события для постоянного изменения градиента после наведения
+            marker.on('mouseover', function() {
+                this._icon.innerHTML = `<div style="width: 40px; height: 40px; border-radius: 50%; background: ${afterGradient}; opacity: 0.8;"></div>`;
+                // Удаляем обработчик, чтобы он сработал только один раз
+                this.off('mouseover');
+            });
+        });
+        
+        // Автоматически подстраиваем карту под все маркеры
+        var group = new L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.1));
+
+        // Управление звуком
+        const audio = new Audio('after.wav');
+        audio.loop = true;
+
+        // Попытка автовоспроизведения звука
+        function playAudio() {
+            audio.play().catch(() => {
+                // Если автовоспроизведение запрещено, показываем кнопку для ручного воспроизведения
+                muteButton.style.display = 'block';
+            });
+        }
+
+        // Запуск воспроизведения звука при взаимодействии с пользователем
+        document.addEventListener('click', () => {
+            playAudio();
+        });
+
+        const muteButton = document.getElementById('mute-button');
+        const soundPath1 = document.getElementById('sound-path-1');
+        const soundPath2 = document.getElementById('sound-path-2');
+
+        function updateSoundIcon(muted) {
+            if (muted) {
+                soundPath1.style.display = 'none';
+                soundPath2.style.display = 'none';
+            } else {
+                soundPath1.style.display = 'block';
+                soundPath2.style.display = 'block';
+            }
+        }
+
+        updateSoundIcon(audio.muted);
+
+        muteButton.addEventListener('click', function() {
+            if (audio.muted) {
+                audio.muted = false;
+                muteButton.setAttribute('aria-label', 'Выключить звук');
+            } else {
+                audio.muted = true;
+                muteButton.setAttribute('aria-label', 'Включить звук');
+            }
+            updateSoundIcon(audio.muted);
+        });
+    </script>
+</body>
+</html>

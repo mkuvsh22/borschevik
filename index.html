@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Борщевик</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Dela Gothic One', cursive;
+            background: linear-gradient(135deg, #45474C, #2C2E33, #1D1E22);
+            color: #10CC53;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+        
+        section {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            position: relative;
+            scroll-snap-align: start;
+            background: linear-gradient(135deg, #45474C, #2C2E33, #1D1E22);
+        }
+        
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: 100vh;
+        }
+        
+        /* Стили для видео-секции */
+        .video-section {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .video-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .mute-button {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        
+        .mute-button:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+        
+        .sound-icon {
+            width: 24px;
+            height: 24px;
+            fill: #AAAAAA;
+        }
+        
+        .menu {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            display: flex;
+            z-index: 10;
+            text-align: right;
+        }
+        
+        .menu a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            margin-left: 20px;
+            transition: opacity 0.3s;
+        }
+        
+        .menu a:hover {
+            opacity: 0.8;
+        }
+        
+        /* Стили для текстовых секций */
+        .text-section {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 2rem;
+        }
+        
+        /* Базовые стили для заголовков */
+        .headline-text {
+            font-size: 3.5rem;
+            font-weight: normal;
+            max-width: 90%;
+            transition: all 0.5s ease;
+            mix-blend-mode: difference;
+            letter-spacing: -1px;
+            position: relative;
+            line-height: 1.2;
+            opacity: 0;
+            position: absolute;
+        }
+        
+        /* Эффект неонового свечения */
+        .neon-text {
+            text-shadow: 
+                0 0 5px rgba(16, 204, 83, 0.5),
+                0 0 15px rgba(16, 204, 83, 0.3),
+                0 0 30px rgba(16, 204, 83, 0.1);
+            animation: neonPulse 2s infinite alternate;
+        }
+        
+        /* Эффект глитча для второго заголовка */
+        .glitch-text {
+            position: relative;
+            animation: glitch 4s infinite;
+        }
+        
+        .glitch-text::before,
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+        }
+        
+        .glitch-text::before {
+            left: 2px;
+            color: #E30F0F;
+            animation: glitch-animation 5s infinite;
+        }
+        
+        .glitch-text::after {
+            left: -2px;
+            color: #10CC53;
+            animation: glitch-animation-2 3s infinite;
+        }
+        
+        /* Эффект градиентного текста */
+        .gradient-text {
+            background: linear-gradient(45deg, #10CC53, #7CFC00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientShift 8s infinite linear;
+        }
+        
+        .content-text {
+            max-width: 800px;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            font-weight: normal;
+            opacity: 0;
+            position: absolute;
+        }
+        
+        .content-text p {
+            margin-bottom: 1.5rem;
+            transform: translateZ(0);
+            transition: all 0.3s ease;
+        }
+        
+        /* Интерактивный эффект при наведении на параграфы */
+        .content-text p:hover {
+            transform: scale(1.01);
+            text-shadow: 0 0 5px rgba(16, 204, 83, 0.3);
+        }
+        
+        /* Анимация для виньетки на каждой секции */
+        .vignette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 60%, rgba(0, 0, 0, 0.4) 100%);
+            pointer-events: none;
+        }
+        
+        /* Ссылка к карте */
+        .map-link {
+            position: absolute;
+            font-size: 3.5rem;
+            font-weight: normal;
+            color: #E30F0F;
+            text-decoration: none;
+            opacity: 0;
+            transition: all 0.5s ease;
+            line-height: 1.2;
+        }
+        
+        .map-link:hover {
+            text-shadow: 
+                0 0 5px rgba(227, 15, 15, 0.5),
+                0 0 15px rgba(227, 15, 15, 0.3),
+                0 0 30px rgba(227, 15, 15, 0.1);
+            transform: scale(1.05);
+        }
+        
+        /* Стили для ссылки "Подробнее о проекте" */
+        .about-link {
+            position: absolute;
+            font-size: 1.2rem;
+            color: #10CC53;
+            text-decoration: none;
+            opacity: 0;
+            transition: all 0.5s ease;
+            top: calc(50% + 4rem);
+        }
+        
+        .about-link:hover {
+            text-shadow: 
+                0 0 5px rgba(16, 204, 83, 0.5),
+                0 0 15px rgba(16, 204, 83, 0.3),
+                0 0 30px rgba(16, 204, 83, 0.1);
+            transform: scale(1.05);
+        }
+        
+        /* Стиль для стрелки вниз */
+        .scroll-arrow {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            animation: bounce 2s infinite;
+            cursor: pointer;
+        }
+        
+        .arrow-icon {
+            width: 24px;
+            height: 24px;
+            fill: #AAAAAA;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        /* Анимации */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+        
+        @keyframes neonPulse {
+            from {
+                text-shadow: 
+                    0 0 5px rgba(16, 204, 83, 0.5),
+                    0 0 15px rgba(16, 204, 83, 0.3),
+                    0 0 30px rgba(16, 204, 83, 0.1);
+            }
+            to {
+                text-shadow: 
+                    0 0 10px rgba(16, 204, 83, 0.8),
+                    0 0 25px rgba(16, 204, 83, 0.5),
+                    0 0 40px rgba(16, 204, 83, 0.3);
+            }
+        }
+        
+        @keyframes glitch-animation {
+            0% {
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.3;
+            }
+            21% {
+                opacity: 0;
+            }
+            60% {
+                opacity: 0;
+            }
+            61% {
+                opacity: 0.3;
+            }
+            70% {
+                opacity: 0.7;
+            }
+            71% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+        
+        @keyframes glitch-animation-2 {
+            0% {
+                opacity: 0;
+            }
+            10% {
+                opacity: 0;
+            }
+            11% {
+                opacity: 0.3;
+            }
+            16% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 0;
+            }
+            51% {
+                opacity: 0.5;
+            }
+            53% {
+                opacity: 0;
+            }
+            90% {
+                opacity: 0;
+            }
+            91% {
+                opacity: 0.4;
+            }
+            93% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+        
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+        }
+        
+        .fade-out {
+            animation: fadeOut 1s ease forwards;
+        }
+        
+        /* Центрирование контента в текстовой секции */
+        .text-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="scroll-container" id="scroll-container">
+        <!-- Секция с видео -->
+        <section class="video-section">
+            <div class="video-container">
+                <video id="background-video" autoplay loop muted>
+                    <source src="demo1.mp4" type="video/mp4">
+                    Ваш браузер не поддерживает видео.
+                </video>
+            </div>
+            <div class="vignette"></div>
+            <button class="mute-button" id="mute-button" aria-label="Включить звук">
+                <svg class="sound-icon" id="sound-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.8 4.9c0-.5-.4-1-.8-1-.2 0-.4.1-.6.2L4.8 8H1c-.6 0-1 .4-1 1v6c0 .6.4 1 1 1h3.8l4.6 3.9c.2.1.4.2.6.2.4 0 .8-.5.8-1V4.9z"/>
+                    <path id="mute-path" d="M23 12c0-3.2-1.9-6-4.5-7.2" stroke="#AAAAAA" stroke-width="2" stroke-linecap="round"/>
+                    <path id="sound-path-1" d="M18.5 4.8c2.6 1.2 4.5 4 4.5 7.2 0 3.2-1.9 6-4.5 7.2" stroke="#AAAAAA" stroke-width="2" stroke-linecap="round"/>
+                    <path id="sound-path-2" d="M15 8.5c1.3.6 2.3 2 2.3 3.5s-1 2.9-2.3 3.5" stroke="#AAAAAA" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="menu">
+                <a href="index7.html">Интро</a>
+                <a href="method.html">О проекте</a>
+                <a href="map.html">Карта</a>
+            </div>
+            <!-- Добавлена стрелка для скролла вниз -->
+            <div class="scroll-arrow" id="scroll-arrow">
+                <svg class="arrow-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 10l5 5 5-5z" fill="#AAAAAA"/>
+                </svg>
+            </div>
+        </section>
+        
+        <!-- Единая текстовая секция -->
+        <section class="text-section">
+            <div class="vignette"></div>
+            <div class="text-container">
+                <!-- Первый текст -->
+                <div id="text1" class="headline-text neon-text">
+                    В России 20 тысяч магазинов «Пятерочка»
+                </div>
+                
+                <!-- Второй текст (содержимое) -->
+                <div id="text2" class="content-text">
+                    <p>Это не единственная бюджетная сеть продуктовых магазинов, но именно она занимает особое место в российской культуре и медиа. 3D реконструкция двора с «Пятерочкой» — самый популярный русскоязычный мир на платформе VRChat. Кадры на фоне «Пятерочки» в городе Суджа стали символом вторжения ВСУ в Курскую область. Голос «Пятерочки», внутреннее маркетинговое радио сети, — один из популярных мемов в соцсетях.</p>
+                    <p>Думая о «Пятерочка», с ее узнаваемыми красно-зелено-серыми цветами, я начала искать изображения магазинов в панорамах «Яндекса». В некоторых локациях есть возможность посмотреть архивные съемки и узнать, что на этом месте было до «Пятерочки».</p>
+                    <p>Хотя эти магазины часто появляются на месте заброшенных зданий или на месте пустоты, во многих случаях «Пятерочка» занимала помещения других магазинов, не входящих в сети, имеющих свои собственные названия и визуальный стиль. С распространением «Пятерочки», которая часто приносит более высокие стандарты продуктового ритейла, но но унифицирует реальность, на карте России единая красно-зелено-серая палитра постепенно вытесняет другие цвета.</p>
+                </div>
+                
+                <!-- Третий текст -->
+                <div id="text3" data-text="Я могу сравнить это с экспансией борщевика" class="headline-text glitch-text gradient-text">
+                    Я могу сравнить это с экспансией борщевика
+                </div>
+                
+                <!-- Ссылка на карту -->
+                <a id="map-link" href="map.html" class="map-link">
+                    К карте
+                </a>
+                
+                <!-- Ссылка на страницу с подробной информацией о проекте -->
+                <a id="about-link" href="method.html" class="about-link">
+                    Подробнее о проекте
+                </a>
+            </div>
+            <div class="menu">
+                <a href="index.html">О проекте</a>
+                <a href="method.html">Метод</a>
+                <a href="map.html">Карта</a>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Получаем элементы текста
+            const text1 = document.getElementById('text1');
+            const text2 = document.getElementById('text2');
+            const text3 = document.getElementById('text3');
+            const mapLink = document.getElementById('map-link');
+            const aboutLink = document.getElementById('about-link');
+            const scrollContainer = document.getElementById('scroll-container');
+            
+            // Флаг для отслеживания, была ли запущена анимация
+            let animationStarted = false;
+            
+            // Функция для управления анимацией элементов
+            function animateElements() {
+                if (animationStarted) return; // Предотвращаем повторный запуск анимации
+                animationStarted = true;
+                
+                // Показываем первый текст на 5 секунд
+                text1.classList.add('fade-in');
+                
+                // Через 5 секунд скрываем первый текст и показываем второй на 30 секунд
+                setTimeout(() => {
+                    text1.classList.remove('fade-in');
+                    text1.classList.add('fade-out');
+                    
+                    setTimeout(() => {
+                        text2.classList.add('fade-in');
+                        
+                        // Через 30 секунд скрываем второй текст и показываем третий на 5 секунд
+                        setTimeout(() => {
+                            text2.classList.remove('fade-in');
+                            text2.classList.add('fade-out');
+                            
+                            setTimeout(() => {
+                                text3.classList.add('fade-in');
+                                
+                                // Через 5 секунд скрываем третий текст и показываем ссылки
+                                setTimeout(() => {
+                                    text3.classList.remove('fade-in');
+                                    text3.classList.add('fade-out');
+                                    
+                                    setTimeout(() => {
+                                        mapLink.classList.add('fade-in');
+                                        aboutLink.classList.add('fade-in');
+                                    }, 1000);
+                                }, 5000);
+                            }, 1000);
+                        }, 30000);
+                    }, 1000);
+                }, 5000);
+            }
+            
+            // Отслеживаем скролл для запуска анимации
+            scrollContainer.addEventListener('scroll', function() {
+                const scrollPosition = scrollContainer.scrollTop;
+                const windowHeight = window.innerHeight;
+                
+                // Запускаем анимацию, когда пользователь прокрутил до второй секции
+                if (scrollPosition > windowHeight / 2 && !animationStarted) {
+                    animateElements();
+                }
+            });
+            
+            // Также запускаем анимацию когда пользователь нажимает на стрелку для скролла
+            const scrollArrow = document.getElementById('scroll-arrow');
+            scrollArrow.addEventListener('click', function() {
+                scrollContainer.scrollTo({
+                    top: window.innerHeight,
+                    behavior: 'smooth'
+                });
+                
+                // Добавляем небольшую задержку перед запуском анимации после скролла
+                setTimeout(() => {
+                    if (!animationStarted) {
+                        animateElements();
+                    }
+                }, 1000);
+            });
+            
+            // Инициализация эффекта глитча
+            const glitchText = document.querySelector('.glitch-text');
+            if (glitchText) {
+                glitchText.setAttribute('data-text', glitchText.textContent);
+            }
+            
+            // Настройка кнопки звука
+            const video = document.getElementById('background-video');
+            const muteButton = document.getElementById('mute-button');
+            const soundPath1 = document.getElementById('sound-path-1');
+            const soundPath2 = document.getElementById('sound-path-2');
+            
+            function updateSoundIcon(muted) {
+                if (muted) {
+                    soundPath1.style.display = 'none';
+                    soundPath2.style.display = 'none';
+                } else {
+                    soundPath1.style.display = 'block';
+                    soundPath2.style.display = 'block';
+                }
+            }
+            
+            // Инициализация звука
+            updateSoundIcon(video.muted);
+            
+            muteButton.addEventListener('click', function() {
+                if (video.muted) {
+                    video.muted = false;
+                    muteButton.setAttribute('aria-label', 'Выключить звук');
+                } else {
+                    video.muted = true;
+                    muteButton.setAttribute('aria-label', 'Включить звук');
+                }
+                updateSoundIcon(video.muted);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Борщевик - Метод</title>
+    <link href="https://fonts.googleapis.com/css2?family=Istok+Web:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Istok Web', sans-serif;
+            background: linear-gradient(135deg, #3A3C42, #1A1C20);
+            color: #10CC53;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .menu {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            z-index: 10;
+            text-align: right;
+        }
+        
+        .menu a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            margin-left: 20px;
+            transition: opacity 0.3s;
+        }
+        
+        .menu a:hover {
+            opacity: 0.8;
+        }
+        
+        .content-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            padding-top: 60px;
+        }
+        
+        .text-content {
+            width: 55%;
+            padding: 2rem;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards;
+            max-width: 600px;
+        }
+        
+        .image-content {
+            width: 45%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding-top: 2rem;
+            padding-right: 2rem;
+        }
+        
+        .image-content img {
+            width: 132%;
+            height: 28%;
+            object-fit: cover;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .image-content img:nth-child(1) {
+            animation: fadeInImage 1s ease forwards 0.5s;
+        }
+        
+        .image-content img:nth-child(2) {
+            animation: fadeInImage 1s ease forwards 1s;
+        }
+        
+        .image-content img:nth-child(3) {
+            animation: fadeInImage 1s ease forwards 1.5s;
+        }
+        
+        p {
+            margin-bottom: 1.2rem;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            text-align: left;
+        }
+        
+        a.table-link {
+            color: #10CC53;
+            text-decoration: underline;
+        }
+        
+        a.table-link:hover {
+            opacity: 0.8;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeInImage {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="menu">
+            <a href="index.html">Интро</a>
+            <a href="method.html">О проекте</a>
+            <a href="map.html">Карта</a>
+        </div>
+        
+        <div class="content-container">
+            <div class="text-content">
+                <p>В России около 20 тысяч магазинов «Пятерочка». Это не единственная бюджетная сеть продуктовых магазинов, но именно она занимает особое место в российской культуре и медиа. 3D реконструкция двора с «Парочкой» — самый популярный русскоязычный мир на платформе VRChat. Кадры на фоне «Пятерочки» в городе Суджа стали символом вторжения ВСУ в Курскую область. Голос «Пятерочки», внутреннее маркетинговое радио сети, — один из популярных мемов в соцсетях.</p>
+                
+                <p>Думая о «Пятерочка», с ее узнаваемыми красно-зелено-серыми цветами, я начала искать изображения магазинов в панорамах «Яндекса». В некоторых локациях есть возможность посмотреть архивные съемки и узнать, что на этом месте было до «Пятерочки». Хотя эти магазины часто появляются на месте заброшенных зданий или на месте пустоты, во многих случаях «Пятерочка» занимала помещения других магазинов, не входящих в сеть, имеющих свои собственные названия и визуальный стиль. С распространением «Пятерочки», которая часто приносила более высокие стандарты продуктового ритейла, на карте России единая красно-зелено-серая палитра постепенно вытесняет другие цвета.</p>
+                
+                <p>Я могу сравнить распространение этих цветов с постоянной экспансией борщевика.</p>
+                
+                <p>На картах Яндекса, на Google Maps и поиске по конкретным адресам я собираю фотографии локаций, какими они были до появления и после появления в них «Пятерочки». Потом при помощи кода или вручную с помощью Color Picker определяю HEX-коды цветов на картинке, отсекая самые популярные, специфичные для российской городской среды (черный, коричневый, грязно-серый). Часто старую фотографию локации нельзя найти на Яндексе, но можно найти на панорамах Google Street View, которые однажды были сняты и больше никогда не обновлялись из-за ухода американских IT-компаний из России. Из четырех основных цветов каждой локации до и после появления «Пятерочки» я делаю градиентную точку, которую помещаю в соответсвующее место на карте (в редких случаях магазины сети могут по цвету отличаться от стандарта).</p>
+                
+                <p>При наведении мыши, можно увидеть, как с приходом магазинов сети меняется палитра городского пространства. Звуковое сопровождение сгенерировано из <a href="https://docs.google.com/spreadsheets/d/1-VLu7t7dDLneXk7kG_04NNFrHp6_ub8rswijJTdPqfg/edit?usp=sharing" class="table-link" target="_blank">таблицы</a> цветов «до» и «после».</p>
+            </div>
+            
+            <div class="image-content">
+                <img src="4.png" alt="Pyaterochka 4">
+                <img src="5.png" alt="Pyaterochka 5">
+                <img src="6.png" alt="Pyaterochka 6">
+            </div>
+        </div>
+    </div>
+</body>
+</html>
